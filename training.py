@@ -39,8 +39,8 @@ write_tfrecord(val_data, val_labels, 'validation')
 '''
 
 #tfrecords location
-training_data = 'wound-segmentation/data/traininig_tfrecord/training'
-validation_data = 'wound-segmentation/data/traininig_tfrecord/validation'
+training_data = 'tfrecord/training'
+validation_data = 'tfrecord/validation'
 #loading tfrecord in desired input format
 training_data = load_tfrecord(training_data)
 validation_data = load_tfrecord(validation_data)
