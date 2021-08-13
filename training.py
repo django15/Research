@@ -11,7 +11,7 @@ from keras.layers import Input
 from load_dataset import *
 from model import *
 
-'''Print versions of all the libraries used, to make sure user can replecate the code succesfully. '''
+'''Print versions of all the libraries used, to make sure user can replecate the code succesfully. 
 print('Python', sys.version)
 print('TensorFlow', tf.__version__) 
 print('Keras', keras.__version__ ) 
@@ -22,7 +22,7 @@ print ('cpu compiler', tf.sysconfig.get_build_info()['cpu_compiler'])
 print ('cuda compute capabilities', tf.sysconfig.get_build_info()['cuda_compute_capabilities'])
 print ('cuda', tf.sysconfig.get_build_info()['cuda_version'])
 print ('cudnn', tf.sysconfig.get_build_info()['cudnn_version'])
-
+'''
 train_data = 'Foot Ulcer Segmentation Challenge/train/images'
 train_labels = 'Foot Ulcer Segmentation Challenge/train/labels'
 val_data = 'Foot Ulcer Segmentation Challenge/validation/images'
