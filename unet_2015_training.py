@@ -22,16 +22,18 @@ test_labels = 'Foot Ulcer Segmentation Challenge/test/labels'
 
 print ('','#'*100, '\nNumber of Images in train, validation and test datasets are {}, {} and {} respectively.\n'.format(len(os.listdir(train_data)), len(os.listdir(val_data)), len(os.listdir(test_data)) ), '#'*100)
 
-#writing TFrecords, a dataset format we have implemented to generate iterators of required batch size for training and validation dataset. 
-#Loading images per epoch is a bit time consuming processs to train a segmentation model like this, 
-#I have tried to make this loading process a bit faster for images and labels(segmentation masks; another type of image only).
-#when doing research one need to train and test many times to make a model accurate enough to produce acceptable results, 
-#creating tfrcords of data will consume time at once but can be used multiple times without creating it again and again.
+'''
+writing TFrecords, a dataset format implemented to generate iterators of required batch size for training and validation dataset. 
+#To train a segmentation model, Loading images per epoch is a bit time consuming processs,
+#I have tried to make this loading process of images and labels(segmentation masks; another type of image only) per step a little faster.
+#While implementing a project one need to train and test a model many times to make it accurate enough to produce acceptable results, 
+#creating tfrcords of dataset will consume time at once but can be used multiple times without creating it again and again.
 '''
 #uncomment to create tfrecord (if, first time running the model?), otherwise keep using already created tfrecord to improve the model accuracy.
-write_tfrecord(train_data, train_labels, 'training')
-write_tfrecord(val_data, val_labels, 'validation')
-'''
+
+#write_tfrecord(train_data, train_labels, 'training')
+#write_tfrecord(val_data, val_labels, 'validation')
+
 
 #tfrecords location.
 
