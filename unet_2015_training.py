@@ -9,20 +9,10 @@ from keras import optimizers
 from keras import Model
 from keras.layers import Input
 from load_dataset import *
-from model import *
+from unet_model_build import *
 
-'''Print versions of all the libraries used, to make sure user can replecate the code succesfully. 
-print('Python', sys.version)
-print('TensorFlow', tf.__version__) 
-print('Keras', keras.__version__ ) 
-print('numPy',np.__version__ )  
-print('pandas', PIL.__version__)  
-#print('pillow', pd.__version__)
-print ('cpu compiler', tf.sysconfig.get_build_info()['cpu_compiler'])
-print ('cuda compute capabilities', tf.sysconfig.get_build_info()['cuda_compute_capabilities'])
-print ('cuda', tf.sysconfig.get_build_info()['cuda_version'])
-print ('cudnn', tf.sysconfig.get_build_info()['cudnn_version'])
-'''
+#Location for training, validation and test dataset.
+
 train_data = 'Foot Ulcer Segmentation Challenge/train/images'
 train_labels = 'Foot Ulcer Segmentation Challenge/train/labels'
 val_data = 'Foot Ulcer Segmentation Challenge/validation/images'
@@ -32,45 +22,54 @@ test_labels = 'Foot Ulcer Segmentation Challenge/test/labels'
 
 print ('','#'*100, '\nNumber of Images in train, validation and test datasets are {}, {} and {} respectively.\n'.format(len(os.listdir(train_data)), len(os.listdir(val_data)), len(os.listdir(test_data)) ), '#'*100)
 
-#uncomment to create tfrecord (for first time running the model.)
+#writing TFrecords, a dataset format we have implemented to generate iterators of required batch size for training and validation dataset. 
+#Loading images per epoch is a bit time consuming processs to train a segmentation model like this, 
+#I have tried to make this loading process a bit faster for images and labels(segmentation masks; another type of image only).
+#when doing research one need to train and test many times to make a model accurate enough to produce acceptable results, 
+#creating tfrcords of data will consume time at once but can be used multiple times without creating it again and again.
 '''
+#uncomment to create tfrecord (if, first time running the model?), otherwise keep using already created tfrecord to improve the model accuracy.
 write_tfrecord(train_data, train_labels, 'training')
 write_tfrecord(val_data, val_labels, 'validation')
 '''
 
-#tfrecords location
+#tfrecords location.
+
 training_data = 'tfrecord/training'
 validation_data = 'tfrecord/validation'
 #loading tfrecord in desired input format
-training_data = load_tfrecord(training_data)
-validation_data = load_tfrecord(validation_data)
+training_dataset = load_tfrecord(training_data)
+validation_dataset = load_tfrecord(validation_data)
 
 #creating model
 input_layer = Input(shape= (572, 572, 1))
 output_layer = build_unet_2015(input_layer)
-#print (output_layer)
 model = keras.Model(inputs=input_layer, outputs=output_layer)
-optimizer = keras.optimizers.SGD(learning_rate=0.005, momentum=0.95)
+optimizer = keras.optimizers.SGD(learning_rate=0.005, momentum=0.9)
 
 #creating accuracy metrices
 train_acc_metric = keras.metrics.SparseCategoricalAccuracy()
 val_acc_metric = keras.metrics.SparseCategoricalAccuracy()
 
-batch_size = 64
+batch_size = 16
 n_epochs = 5
 
 
 for epoch in range(n_epochs):
     print("\nStart of epoch %d" % (epoch,))
     start_time = time.time()   
-    
+    training_data = training_dataset 
     training_data = training_data.shuffle(buffer_size = 1024)
-    training_data = training_data.batch(1)
+    training_data = training_data.batch(batch_size)
+    validation_data = validation_dataset
     validation_data = validation_data.shuffle(buffer_size = 1024)
     validation_data = validation_data.batch(batch_size)    
+    
+    #tfrecord tensor behaves like a standard python iterator, thus, 'iter' will wrap the dataset into an iterator function.
     itr_train = iter(training_data)
     itr_val = iter(validation_data)   
     
+    #This loop will end when the iterator data gets over.
     try:
         step = 0
         while True:    
@@ -104,8 +103,10 @@ for epoch in range(n_epochs):
     print("Validation acc: %.4f" % (float(val_acc),))
     
     print("Time taken: %.2fs" % (time.time() - start_time))
-    
-    
+
+model_name = 'unet_trained_model_accuracy_%d_val_acc_%d_epoch_%d' % (int(train_acc*100, int(val_acc*100), epoch)
+print ('Saving trained model as: {}'.format(os.path.join('trained_model',(model_name)))
+model.save(os.path.join('trained_model',(model_name)))
     
 
 
